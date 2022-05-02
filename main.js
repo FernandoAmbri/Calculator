@@ -1,5 +1,6 @@
 const numbers = document.querySelectorAll("#number");
 const btnMultiply = document.querySelector(".multiply");
+
 const btnEqual = document.querySelector(".result");
 const deleteAll = document.querySelector(".deleteAll");
 
@@ -16,6 +17,17 @@ let operator_val = "";
 //El usuario solamente puede seguir ingresando números mientras el display
 //tenga menos de 6 dígitos o si el usuario no presiona una tecla para realizar
 //alguna operación.
+//Una vez que el usuario presiona una tecla para hacer alguna operación, se
+//muestra el operador en la pantalla y después el usuario debe ingresar el
+//segundo número.
+//Después si el usuario presiona la tecla igual o alguna otra operación,
+//se debe mostrar el resultado. Una vez que el usuario presiona otra tecla para
+//hacer otra operación, se realiza la operación pero con el valor previamente
+//calculado y el nuevo dígito, nuevamente si el usuario oprime otra tecla para
+//hacer otra operación, se realiza la operación con el valor previamente calculado
+// y el nuevo dígito.
+
+//El resultado hay que guardarlo en un arreglo.
 
 numbers.forEach((number) => {
   number.addEventListener("click", (e) => {
@@ -45,37 +57,60 @@ operators.forEach((operator) => {
 });
 
 btnEqual.addEventListener("click", () => {
-  if (num1.length > 0 && num2.length > 0) {
+  if (num1.length > 0 && num2.length > 0 && operator_val !== "") {
     result(operator_val, num1, num2);
-    num1 = "";
+    let another_operation = result(operator_val, num1, num2);
+    num1 = another_operation;
     num2 = "";
-    flag = false;
+    flag = true;
   }
 });
 
 function result(operator, number1, number2) {
+  let result_operation;
   if (flag && num1.length > 0 && num2.length > 0) {
     number1 = Number(num1);
     number2 = Number(num2);
-    let result = operate(operator, number1, number2).toString();
+    result_operation = operate(operator, number1, number2).toString();
     let show = "";
-    if (result.length > 6) {
+    if (result_operation.length > 6) {
       for (let i = 0; i < 7; i++) {
-        show += result[i];
+        show += result_operation[i];
       }
       display.textContent = show;
     } else {
-      display.textContent = result;
+      display.textContent = result_operation;
     }
   }
+  return result_operation;
 }
 
 deleteAll.addEventListener("click", (e) => {
   display.textContent = "0";
   num1 = "";
   num2 = "";
+  operator_val = "";
 });
 
+const operations = {
+  add: function (number1, number2) {
+    return number1 + number2;
+  },
+  subtract: function (number1, number2) {
+    return number1 - number2;
+  },
+  multiply: function (number1, number2) {
+    return number1 * number2;
+  },
+  divide: function (number1, number2) {
+    if (number1 === 0 || number === 0) {
+      return 0;
+    }
+    return number1 / number2;
+  },
+};
+
+//Switch to an object
 function operate(operator, number1, number2) {
   let value;
   switch (operator) {
