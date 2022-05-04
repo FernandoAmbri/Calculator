@@ -1,12 +1,13 @@
+const display = document.querySelector(".display");
+
 const numbers = document.querySelectorAll("#number");
+const operators = document.querySelectorAll("#operator");
 
 const btnEqual = document.querySelector(".result");
 const deleteAll = document.querySelector(".deleteAll");
 
-const display = document.querySelector(".display");
-const operators = document.querySelectorAll("#operator");
-
 const add_subtract_btn = document.querySelector(".subtract-add");
+const porcentage_btn = document.querySelector(".porcentage");
 
 let num1 = "";
 let num2 = "";
@@ -20,6 +21,22 @@ let operator_val = "";
 //Después refactorizar o mejorar un poco el código.
 //Después agregar la funcionalidad del teclado.
 
+//Al final solucionamos los problemas del igual y del 0.
+//Al final modificamos el diseño.
+
+porcentage_btn.addEventListener("click", (e) => {
+  if (display.textContent !== "" && num1.length > 0 && !flag) {
+    num1 = porcentage(Number(num1)).toString();
+    display.textContent = num1;
+  } else if (display.textContent !== "" && num2.length > 0 && flag) {
+    num2 = porcentage(Number(num2)).toString();
+    display.textContent = num2;
+  } else {
+    num1 = porcentage(Number(num1)).toString();
+    display.textContent = num1;
+  }
+});
+
 add_subtract_btn.addEventListener("click", (e) => {
   if (display.textContent !== "" && num1.length > 0 && !flag) {
     num1 = change_sign(num1).toString();
@@ -27,7 +44,7 @@ add_subtract_btn.addEventListener("click", (e) => {
   } else if (display.textContent !== "" && num2.length > 0 && flag) {
     num2 = change_sign(num2).toString();
     display.textContent = num2;
-  } else if (display.textContent !== "" && num1.length > 0 && flag) {
+  } else {
     num1 = change_sign(num1).toString();
     display.textContent = num1;
   }
@@ -48,11 +65,19 @@ numbers.forEach((number) => {
   number.addEventListener("click", (e) => {
     if (number.textContent !== "+/-") {
       if (num1.length < 6 && !flag) {
-        num1 += number.textContent.trim();
+        if (number.textContent === "." && num1.length === 0) {
+          num1 += "0.";
+        } else {
+          num1 += number.textContent.trim();
+        }
         display.textContent = num1;
       }
       if (num2.length < 6 && flag) {
-        num2 += number.textContent.trim();
+        if (number.textContent === "." && num2.length === 0) {
+          num2 += "0.";
+        } else {
+          num2 += number.textContent.trim();
+        }
         display.textContent = num2;
       }
     }
@@ -61,13 +86,15 @@ numbers.forEach((number) => {
 
 operators.forEach((operator) => {
   operator.addEventListener("click", (e) => {
-    if (operator_val !== "" && num1.length > 0 && num2.length > 0) {
-      show_result();
-      operator_val = operator.textContent;
-    } else {
-      display.textContent = operator.textContent;
-      operator_val = operator.textContent;
-      flag = true;
+    if (operator.textContent !== "%") {
+      if (operator_val !== "" && num1.length > 0 && num2.length > 0) {
+        show_result();
+        operator_val = operator.textContent;
+      } else {
+        display.textContent = operator.textContent;
+        operator_val = operator.textContent;
+        flag = true;
+      }
     }
   });
 });
@@ -81,6 +108,14 @@ function show_result() {
     flag = true;
   }
 }
+
+/* 
+Cuando tú haces una operación y muestras el resultado con el botón igual, 
+se muestra el resultado, pero si oprimes otro número y después la operación, 
+no se realiza la operación como tal, más bien se concatenan los números. 
+
+El valor de num1 se tiene que borrar y comenzar desde cero. 
+*/
 
 btnEqual.addEventListener("click", () => {
   show_result();
@@ -111,46 +146,26 @@ deleteAll.addEventListener("click", (e) => {
   flag = false;
 });
 
-//Switch to an object
 function operate(operator, number1, number2) {
   let value;
   switch (operator) {
     case "+":
-      value = add(number1, number2);
+      value = number1 + number2;
       break;
     case "-":
-      value = subtract(number1, number2);
+      value = number1 - number2;
       break;
     case "*":
-      value = multiply(number1, number2);
+      value = number1 * number2;
       break;
     case "/":
-      value = divide(number1, number2);
-      break;
-    case "%":
-      value = porcentage(number1);
+      if (number1 === 0 || number2 === 0) {
+        value = 0;
+      }
+      value = number1 / number2;
       break;
   }
   return value;
-}
-
-function add(num1, num2) {
-  return num1 + num2;
-}
-
-function subtract(num1, num2) {
-  return num1 - num2;
-}
-
-function multiply(num1, num2) {
-  return num1 * num2;
-}
-
-function divide(num1, num2) {
-  if (num1 === 0 || num2 === 0) {
-    return 0;
-  }
-  return num1 / num2;
 }
 
 function porcentage(num) {
