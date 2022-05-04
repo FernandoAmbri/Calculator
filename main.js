@@ -4,25 +4,27 @@ const numbers = document.querySelectorAll("#number");
 const operators = document.querySelectorAll("#operator");
 
 const btnEqual = document.querySelector(".result");
-const deleteAll = document.querySelector(".deleteAll");
+const delete_numbers = document.querySelectorAll("#restart");
 
 const add_subtract_btn = document.querySelector(".subtract-add");
 const porcentage_btn = document.querySelector(".porcentage");
+const point = document.querySelector(".point");
 
 let num1 = "";
 let num2 = "";
-let flag = false;
 let operator_val = "";
+let flag = false;
 
-//Llegando de la escuela, vas a mejorar la lógica para el operador +/-
-//Después vas a realizar la lógica del operador porciento.
-//Después vas a mejorar el diseño.
+//Actividades pendientes:
 
-//Después refactorizar o mejorar un poco el código.
-//Después agregar la funcionalidad del teclado.
-
+//Agrega el botón de borrar un dígito.
+//Falta solucionar el problema de que el 0 debe ir después de un número no antes,
+//el cero no puede ir a la izquierda si no es número con punto decimal.
+//El cero no puede ir a la izquierda
 //Al final solucionamos los problemas del igual y del 0.
 //Al final modificamos el diseño.
+//Después refactorizar o mejorar un poco el código.
+//Después agregar la funcionalidad del teclado.
 
 porcentage_btn.addEventListener("click", (e) => {
   if (display.textContent !== "" && num1.length > 0 && !flag) {
@@ -61,24 +63,34 @@ function change_sign(num) {
   return final_num;
 }
 
+point.addEventListener("click", (e) => {
+  if (num1.length === 0) {
+    num1 += "0.";
+    display.textContent = num1;
+  } else if (num2.length === 0) {
+    num2 += "0.";
+    display.textContent = num2;
+  }
+});
+
 numbers.forEach((number) => {
   number.addEventListener("click", (e) => {
     if (number.textContent !== "+/-") {
       if (num1.length < 6 && !flag) {
-        if (number.textContent === "." && num1.length === 0) {
-          num1 += "0.";
+        if (number.textContent === "." && num1.indexOf(".") > 0) {
+          display.textContent = num1.length > 0 ? num1 : "0";
         } else {
           num1 += number.textContent.trim();
+          display.textContent = num1;
         }
-        display.textContent = num1;
       }
       if (num2.length < 6 && flag) {
-        if (number.textContent === "." && num2.length === 0) {
-          num2 += "0.";
+        if (number.textContent === "." && num2.indexOf(".") > 0) {
+          display.textContent = num2.length > 0 ? num2 : "0";
         } else {
           num2 += number.textContent.trim();
+          display.textContent = num2;
         }
-        display.textContent = num2;
       }
     }
   });
@@ -138,13 +150,35 @@ function result(operator, number1, number2) {
   return result_operation;
 }
 
-deleteAll.addEventListener("click", (e) => {
+delete_numbers.forEach((button) => {
+  button.addEventListener("click", (e) => {
+    if (button.textContent === "C") {
+      delete_all();
+    } else {
+      if (num1.length > 0) {
+        delete_number(num1);
+      }
+      if (num2.length > 0) {
+        delete_number(num2);
+      }
+    }
+  });
+});
+
+function delete_all() {
   display.textContent = "0";
   num1 = "";
   num2 = "";
   operator_val = "";
   flag = false;
-});
+}
+
+function delete_number(num) {
+  if (num.length > 0) {
+    num = num.split("").pop().join("");
+    display.textContent = num;
+  }
+}
 
 function operate(operator, number1, number2) {
   let value;
