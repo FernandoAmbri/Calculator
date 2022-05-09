@@ -9,6 +9,7 @@ const delete_numbers = document.querySelectorAll("#restart");
 const add_subtract_btn = document.querySelector(".subtract-add");
 const porcentage_btn = document.querySelector(".porcentage");
 const point = document.querySelector(".point");
+const zero = document.querySelector(".zero");
 
 let num1 = "";
 let num2 = "";
@@ -16,13 +17,10 @@ let operator_val = "";
 let flag = false;
 
 //Actividades pendientes:
-
-//Agrega el botón de borrar un dígito.
-//Falta solucionar el problema de que el 0 debe ir después de un número no antes,
-//el cero no puede ir a la izquierda si no es número con punto decimal.
-//El cero no puede ir a la izquierda
-//Al final solucionamos los problemas del igual y del 0.
+//Al final solucionamos los problemas del igual.
 //Al final modificamos el diseño.
+
+//Domingo
 //Después refactorizar o mejorar un poco el código.
 //Después agregar la funcionalidad del teclado.
 
@@ -63,34 +61,44 @@ function change_sign(num) {
   return final_num;
 }
 
+//Es mejor hacerlo separado y después ver una manera de juntar todo
+//Primero vamos a solucionar el problema del punto
+//Después solucionar el problema del cero
+//Después solucionar el problema del igual
+//Después mejorar un poco el diseño
+//Subir todo a github
+
 point.addEventListener("click", (e) => {
-  if (num1.length === 0) {
+  if (num1.length === 0 && !flag) {
     num1 += "0.";
     display.textContent = num1;
-  } else if (num2.length === 0) {
+  } else if (num1.length > 0 && !flag && num1.indexOf(".") < 0) {
+    num1 += point.textContent;
+    display.textContent = num1;
+  }
+  if (num2.length === 0 && flag) {
     num2 += "0.";
+    display.textContent = num2;
+  } else if (num2.length > 0 && flag && num2.indexOf(".") < 0) {
+    num2 += point.textContent;
     display.textContent = num2;
   }
 });
 
 numbers.forEach((number) => {
   number.addEventListener("click", (e) => {
-    if (number.textContent !== "+/-") {
+    if (
+      number.textContent !== "+/-" &&
+      number.textContent !== "." &&
+      number.textContent !== "0"
+    ) {
       if (num1.length < 6 && !flag) {
-        if (number.textContent === "." && num1.indexOf(".") > 0) {
-          display.textContent = num1.length > 0 ? num1 : "0";
-        } else {
-          num1 += number.textContent.trim();
-          display.textContent = num1;
-        }
+        num1 += number.textContent.trim();
+        display.textContent = num1;
       }
       if (num2.length < 6 && flag) {
-        if (number.textContent === "." && num2.indexOf(".") > 0) {
-          display.textContent = num2.length > 0 ? num2 : "0";
-        } else {
-          num2 += number.textContent.trim();
-          display.textContent = num2;
-        }
+        num2 += number.textContent.trim();
+        display.textContent = num2;
       }
     }
   });
@@ -99,9 +107,8 @@ numbers.forEach((number) => {
 operators.forEach((operator) => {
   operator.addEventListener("click", (e) => {
     if (operator.textContent !== "%") {
-      if (operator_val !== "" && num1.length > 0 && num2.length > 0) {
+      if (num1.length > 0 && num2.length > 0) {
         show_result();
-        operator_val = operator.textContent;
       } else {
         display.textContent = operator.textContent;
         operator_val = operator.textContent;
@@ -114,20 +121,16 @@ operators.forEach((operator) => {
 function show_result() {
   if (num1.length > 0 && num2.length > 0 && operator_val !== "") {
     result(operator_val, num1, num2);
-    num1 = result(operator_val, num1, num2);
+    num1 = result(operator_val, num1, num2); //Esto no va aquí
     num2 = "";
     operator_val = "";
     flag = true;
   }
 }
 
-/* 
-Cuando tú haces una operación y muestras el resultado con el botón igual, 
-se muestra el resultado, pero si oprimes otro número y después la operación, 
-no se realiza la operación como tal, más bien se concatenan los números. 
-
-El valor de num1 se tiene que borrar y comenzar desde cero. 
-*/
+//Después de la operación o el usuario ingresa un nuevo número o el usuario
+//da clic en algún operador, si da clic en el operador, esta a la espera del
+//segundo número, sino la calculadora esta a la espera del primer número.
 
 btnEqual.addEventListener("click", () => {
   show_result();
@@ -138,12 +141,9 @@ function result(operator, number1, number2) {
   number1 = Number(num1);
   number2 = Number(num2);
   result_operation = operate(operator, number1, number2).toString();
-  let show = "";
   if (result_operation.length > 6) {
-    for (let i = 0; i < 7; i++) {
-      show += result_operation[i];
-    }
-    display.textContent = show;
+    result_operation = result_operation.substring(0, 6);
+    display.textContent = result_operation;
   } else {
     display.textContent = result_operation;
   }
@@ -154,12 +154,18 @@ delete_numbers.forEach((button) => {
   button.addEventListener("click", (e) => {
     if (button.textContent === "C") {
       delete_all();
-    } else {
+    } else if (button.textContent === "CE") {
       if (num1.length > 0) {
-        delete_number(num1);
+        num1 = num1.split("");
+        num1.pop();
+        num1 = num1.join("");
+        display.textContent = num1.length > 0 ? num1 : delete_all();
       }
       if (num2.length > 0) {
-        delete_number(num2);
+        num2 = num2.split("");
+        num2.pop();
+        num2 = num2.join("");
+        display.textContent = num2.length > 0 ? num2 : delete_all();
       }
     }
   });
@@ -171,13 +177,6 @@ function delete_all() {
   num2 = "";
   operator_val = "";
   flag = false;
-}
-
-function delete_number(num) {
-  if (num.length > 0) {
-    num = num.split("").pop().join("");
-    display.textContent = num;
-  }
 }
 
 function operate(operator, number1, number2) {
